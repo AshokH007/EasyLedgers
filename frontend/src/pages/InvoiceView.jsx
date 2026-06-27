@@ -299,8 +299,8 @@ function InvoiceView({ invoiceId, navigate, theme }) {
         {/* Printable Card Container */}
         <div className={`print-area shadow-2xl overflow-hidden text-zinc-900 font-sans border border-transparent ${
           template === 'thermal' 
-            ? 'w-[80mm] p-2 bg-white text-black font-mono text-[9px] border-dashed border-zinc-300' 
-            : 'w-[210mm] min-h-[297mm] p-10 bg-white'
+            ? 'paper-thermal-80 bg-white text-black font-mono text-[9px] border-dashed border-zinc-300' 
+            : 'paper-a4 bg-white'
         }`}>
           
           {/* 1. CLASSIC GST TEMPLATE */}

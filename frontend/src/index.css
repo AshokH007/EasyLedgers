@@ -68,6 +68,8 @@
     background: #fff !important;
     color: #000 !important;
     font-size: 11px !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   .no-print {
@@ -79,38 +81,43 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
     box-shadow: none !important;
     background: white !important;
   }
 
   @page {
     size: auto;
-    margin: 10mm;
+    margin: 0mm !important; /* Removes standard browser headers and footers */
   }
 
-  /* Specific Paper Styles */
+  /* Specific Paper Styles (Simulating page margins internally) */
   .paper-a4 {
     width: 210mm !important;
     min-height: 297mm !important;
+    padding: 15mm !important; /* A4 printable margin */
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .paper-half-a4 {
     width: 210mm !important;
     min-height: 148mm !important;
+    padding: 10mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .paper-thermal-80 {
     width: 80mm !important;
-    padding: 2mm !important;
+    padding: 4mm !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .paper-thermal-58 {
     width: 58mm !important;
-    padding: 1mm !important;
+    padding: 2mm !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
   }
 }
