@@ -85,7 +85,7 @@
   html, body {
     background: #fff !important;
     color: #000 !important;
-    font-size: 13px !important; /* Increased base print size */
+    font-size: 12px !important; /* Balanced print base size */
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -114,7 +114,7 @@
     width: 100% !important;
     max-width: 100% !important;
     min-height: 100% !important;
-    padding: 12mm !important; /* Inner simulated print margins */
+    padding: 10mm !important; /* Inner simulated print margins */
     margin: 0 !important;
     box-sizing: border-box !important;
   }
@@ -144,38 +144,38 @@
     font-size: 9px !important;
   }
 
-  /* Font Scale Overrides for Legibility (Makes invoice texts larger and clear) */
+  /* Font Scale Overrides for Legibility (Balanced and Compact) */
   .paper-a4 .text-\[8px\],
   .paper-a4 .text-\[9px\],
   .paper-a4 .text-\[10px\] {
-    font-size: 11px !important;
+    font-size: 9.5px !important;
   }
 
   .paper-a4 .text-xs {
-    font-size: 12px !important;
+    font-size: 11px !important;
   }
 
   .paper-a4 .text-sm {
-    font-size: 13.5px !important;
+    font-size: 12.5px !important;
   }
 
   .paper-a4 .text-base {
-    font-size: 15px !important;
+    font-size: 14px !important;
   }
 
   .paper-a4 .text-lg {
-    font-size: 17px !important;
+    font-size: 16px !important;
   }
 
   .paper-a4 .text-xl {
-    font-size: 20px !important;
+    font-size: 18px !important;
   }
 
   .paper-a4 .text-2xl {
-    font-size: 24px !important;
+    font-size: 22px !important;
   }
 
   .paper-a4 .text-3xl {
-    font-size: 28px !important;
+    font-size: 26px !important;
   }
 }
