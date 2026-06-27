@@ -62,12 +62,30 @@
   background: #22c55e;
 }
 
+/* Screen Paper Styles (for centered preview layout) */
+.paper-a4 {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm;
+  box-sizing: border-box;
+  background: white !important;
+  color: #18181b !important;
+}
+
+.paper-thermal-80 {
+  width: 80mm;
+  padding: 4mm;
+  box-sizing: border-box;
+  background: white !important;
+  color: black !important;
+}
+
 /* Print CSS */
 @media print {
   html, body {
     background: #fff !important;
     color: #000 !important;
-    font-size: 11px !important;
+    font-size: 13px !important; /* Increased base print size */
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -83,26 +101,29 @@
     top: 0;
     box-shadow: none !important;
     background: white !important;
+    width: 100% !important;
   }
 
   @page {
     size: auto;
-    margin: 0mm !important; /* Removes standard browser headers and footers */
+    margin: 0mm !important; /* Hides default browser header and footer */
   }
 
-  /* Specific Paper Styles (Simulating page margins internally) */
+  /* Fluid Page Styles: Fills the selected paper width (A4, A5, Letter) */
   .paper-a4 {
-    width: 210mm !important;
-    min-height: 297mm !important;
-    padding: 15mm !important; /* A4 printable margin */
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100% !important;
+    padding: 12mm !important; /* Inner simulated print margins */
     margin: 0 !important;
     box-sizing: border-box !important;
   }
 
   .paper-half-a4 {
-    width: 210mm !important;
-    min-height: 148mm !important;
-    padding: 10mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100% !important;
+    padding: 8mm !important;
     margin: 0 !important;
     box-sizing: border-box !important;
   }
@@ -112,6 +133,7 @@
     padding: 4mm !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    font-size: 10px !important;
   }
 
   .paper-thermal-58 {
@@ -119,5 +141,41 @@
     padding: 2mm !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    font-size: 9px !important;
+  }
+
+  /* Font Scale Overrides for Legibility (Makes invoice texts larger and clear) */
+  .paper-a4 .text-\[8px\],
+  .paper-a4 .text-\[9px\],
+  .paper-a4 .text-\[10px\] {
+    font-size: 11px !important;
+  }
+
+  .paper-a4 .text-xs {
+    font-size: 12px !important;
+  }
+
+  .paper-a4 .text-sm {
+    font-size: 13.5px !important;
+  }
+
+  .paper-a4 .text-base {
+    font-size: 15px !important;
+  }
+
+  .paper-a4 .text-lg {
+    font-size: 17px !important;
+  }
+
+  .paper-a4 .text-xl {
+    font-size: 20px !important;
+  }
+
+  .paper-a4 .text-2xl {
+    font-size: 24px !important;
+  }
+
+  .paper-a4 .text-3xl {
+    font-size: 28px !important;
   }
 }

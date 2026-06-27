@@ -305,30 +305,30 @@ function InvoiceView({ invoiceId, navigate, theme }) {
           
           {/* 1. CLASSIC GST TEMPLATE */}
           {template === 'classic' && (
-            <div className="space-y-6 text-xs text-zinc-900">
+            <div className="space-y-8 text-sm text-zinc-900">
               
               {/* Header Details */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h1 className="text-2xl font-black text-zinc-950 leading-none">{company.name}</h1>
-                  <p className="opacity-80 text-[10px] leading-tight">{company.address}</p>
-                  <p className="font-semibold text-[10px]">GSTIN: <span className="font-mono">{company.gstin}</span> | Phone: {company.phone}</p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <h1 className="text-3xl font-black text-zinc-950 leading-none">{company.name}</h1>
+                  <p className="opacity-80 text-xs leading-normal">{company.address}</p>
+                  <p className="font-bold text-xs mt-1">GSTIN: <span className="font-mono">{company.gstin}</span> | Phone: {company.phone}</p>
                 </div>
-                <div className="text-right space-y-1">
-                  <h2 className="text-xl font-bold uppercase tracking-wider text-emerald-600 leading-none">TAX INVOICE</h2>
-                  <p className="font-mono font-bold text-zinc-950 mt-1">Invoice No: {invoice.invoiceNo}</p>
-                  <p className="font-mono text-zinc-500">Date: {invoiceDateFormatted}</p>
-                  <p className="text-[10px] font-bold">Payment: <span className="text-emerald-600">{invoice.paymentMode} ({invoice.billType})</span></p>
+                <div className="text-right space-y-1.5">
+                  <h2 className="text-2xl font-black uppercase tracking-wider text-emerald-600 leading-none">TAX INVOICE</h2>
+                  <p className="font-mono font-bold text-zinc-950 text-sm mt-1">Invoice No: {invoice.invoiceNo}</p>
+                  <p className="font-mono text-zinc-500 text-xs">Date: {invoiceDateFormatted}</p>
+                  <p className="text-xs font-bold">Payment: <span className="text-emerald-600">{invoice.paymentMode} ({invoice.billType})</span></p>
                 </div>
               </div>
 
               {/* Billed To / Shipping Address */}
-              <div className="grid grid-cols-2 gap-4 border-t border-b border-zinc-200 py-3 bg-zinc-50/50 px-2.5">
+              <div className="grid grid-cols-2 gap-6 border-t-2 border-b-2 border-zinc-900 py-4 bg-zinc-50/50 px-3">
                 <div>
-                  <h3 className="font-bold uppercase tracking-widest text-[9px] text-zinc-400">Billed To (Recipient)</h3>
-                  <div className="font-bold text-zinc-950 text-sm mt-1">{invoice.customer ? invoice.customer.name : 'Cash Sale'}</div>
+                  <h3 className="font-bold uppercase tracking-widest text-[10px] text-zinc-400">Billed To (Recipient)</h3>
+                  <div className="font-black text-zinc-950 text-base mt-1.5">{invoice.customer ? invoice.customer.name : 'Cash Sale'}</div>
                   {invoice.customer && (
-                    <div className="mt-1 space-y-0.5 leading-tight text-[10px]">
+                    <div className="mt-2 space-y-1 leading-normal text-xs">
                       <p>{invoice.customer.address}</p>
                       <p>Mobile: {invoice.customer.mobile}</p>
                       {invoice.customer.gstin ? (
@@ -339,10 +339,10 @@ function InvoiceView({ invoiceId, navigate, theme }) {
                     </div>
                   )}
                 </div>
-                <div className="text-right space-y-1 leading-normal text-[10px]">
-                  <h3 className="font-bold uppercase tracking-widest text-[9px] text-zinc-400">Transaction Status</h3>
-                  <div className="mt-2.5">
-                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${
+                <div className="text-right space-y-1 leading-normal text-xs self-end">
+                  <h3 className="font-bold uppercase tracking-widest text-[10px] text-zinc-400 mb-2">Transaction Status</h3>
+                  <div>
+                    <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-bold ${
                       invoice.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
                     }`}>
                       {invoice.status}
@@ -352,57 +352,57 @@ function InvoiceView({ invoiceId, navigate, theme }) {
               </div>
 
               {/* Items Grid Table */}
-              <table className="w-full text-left border border-collapse border-zinc-200 text-xs">
+              <table className="w-full text-left border border-zinc-300 border-collapse text-xs">
                 <thead>
-                  <tr className="bg-zinc-100 border-b border-zinc-200 font-bold text-zinc-800">
-                    <th className="py-2 px-2 border-r border-zinc-200 text-center w-8">#</th>
-                    <th className="py-2 px-2 border-r border-zinc-200">Description of Goods</th>
-                    <th className="py-2 px-2 border-r border-zinc-200 text-center">HSN</th>
-                    <th className="py-2 px-2 border-r border-zinc-200 text-right">Qty</th>
-                    <th className="py-2 px-2 border-r border-zinc-200 text-right">Rate</th>
-                    <th className="py-2 px-2 border-r border-zinc-200 text-right">Disc</th>
-                    <th className="py-2 px-2 border-r border-zinc-200 text-center">GST%</th>
-                    <th className="py-2 px-2 text-right">Amount</th>
+                  <tr className="bg-zinc-100 border-b-2 border-zinc-400 font-bold text-zinc-800 text-[11px] uppercase">
+                    <th className="py-3 px-3 border-r border-zinc-300 text-center w-8">#</th>
+                    <th className="py-3 px-3 border-r border-zinc-300">Description of Goods</th>
+                    <th className="py-3 px-3 border-r border-zinc-300 text-center">HSN</th>
+                    <th className="py-3 px-3 border-r border-zinc-300 text-right">Qty</th>
+                    <th className="py-3 px-3 border-r border-zinc-300 text-right">Rate</th>
+                    <th className="py-3 px-3 border-r border-zinc-300 text-right">Disc</th>
+                    <th className="py-3 px-3 border-r border-zinc-300 text-center">GST%</th>
+                    <th className="py-3 px-3 text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-200">
+                <tbody className="divide-y divide-zinc-200 text-xs">
                   {invoice.items.map((item, idx) => (
-                    <tr key={item.id}>
-                      <td className="py-2 px-2 border-r border-zinc-200 text-center font-mono">{idx + 1}</td>
-                      <td className="py-2 px-2 border-r border-zinc-200 font-bold text-zinc-950">{item.product?.name}</td>
-                      <td className="py-2 px-2 border-r border-zinc-200 text-center font-mono">{item.product?.hsn || '—'}</td>
-                      <td className="py-2 px-2 border-r border-zinc-200 text-right font-mono">{parseFloat(item.qty)} {item.product?.unit}</td>
-                      <td className="py-2 px-2 border-r border-zinc-200 text-right font-mono">₹{parseFloat(item.rate).toFixed(2)}</td>
-                      <td className="py-2 px-2 border-r border-zinc-200 text-right font-mono text-zinc-500">₹{parseFloat(item.discount).toFixed(2)}</td>
-                      <td className="py-2 px-2 border-r border-zinc-200 text-center font-mono">{parseFloat(item.gstPercent)}%</td>
-                      <td className="py-2 px-2 text-right font-mono font-bold">₹{parseFloat(item.total).toFixed(2)}</td>
+                    <tr key={item.id} className="hover:bg-zinc-50/40">
+                      <td className="py-3 px-3 border-r border-zinc-300 text-center font-mono">{idx + 1}</td>
+                      <td className="py-3 px-3 border-r border-zinc-300 font-bold text-zinc-950">{item.product?.name}</td>
+                      <td className="py-3 px-3 border-r border-zinc-300 text-center font-mono text-zinc-500">{item.product?.hsn || '—'}</td>
+                      <td className="py-3 px-3 border-r border-zinc-300 text-right font-mono font-semibold">{parseFloat(item.qty)} {item.product?.unit}</td>
+                      <td className="py-3 px-3 border-r border-zinc-300 text-right font-mono">₹{parseFloat(item.rate).toFixed(2)}</td>
+                      <td className="py-3 px-3 border-r border-zinc-300 text-right font-mono text-zinc-500">₹{parseFloat(item.discount).toFixed(2)}</td>
+                      <td className="py-3 px-3 border-r border-zinc-300 text-center font-mono">{parseFloat(item.gstPercent)}%</td>
+                      <td className="py-3 px-3 text-right font-mono font-bold text-zinc-950">₹{parseFloat(item.total).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
               {/* Calculations and Bank Panel */}
-              <div className="grid grid-cols-12 gap-6 pt-2">
+              <div className="grid grid-cols-12 gap-8 pt-4">
                 
                 {/* Left Panel: Bank Info & Terms */}
-                <div className="col-span-7 space-y-4">
-                  <div className="p-3 rounded-lg border border-zinc-200 bg-zinc-50/50 space-y-1 text-[10px]">
-                    <div className="font-bold text-zinc-950 uppercase tracking-wide">Bank Details:</div>
+                <div className="col-span-7 space-y-6">
+                  <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/50 space-y-2 text-xs">
+                    <div className="font-bold text-zinc-950 uppercase tracking-wide">Bank Settlement Account:</div>
                     <p><span className="opacity-60">Bank Name:</span> {company.bankName}</p>
-                    <p><span className="opacity-60">A/C No:</span> <span className="font-mono">{company.accountNo}</span></p>
-                    <p><span className="opacity-60">IFSC Code:</span> <span className="font-mono">{company.ifsc}</span></p>
+                    <p><span className="opacity-60">A/C No:</span> <span className="font-mono font-bold">{company.accountNo}</span></p>
+                    <p><span className="opacity-60">IFSC Code:</span> <span className="font-mono font-bold">{company.ifsc}</span></p>
                     <p><span className="opacity-60">Branch:</span> {company.branch}</p>
                   </div>
 
-                  <div className="text-[9px] leading-tight space-y-1">
+                  <div className="text-[11px] leading-relaxed space-y-1.5">
                     <div className="font-bold text-zinc-950 uppercase tracking-wide">Terms & Conditions:</div>
                     <div className="whitespace-pre-line opacity-80">{company.invoiceTerms}</div>
                   </div>
                 </div>
 
                 {/* Right Panel: Tax Aggregation */}
-                <div className="col-span-5 space-y-2">
-                  <div className="space-y-1.5 text-right font-mono text-[10px]">
+                <div className="col-span-5 space-y-4">
+                  <div className="space-y-2 text-right font-mono text-xs">
                     <div className="flex justify-between">
                       <span className="opacity-60">Taxable Value:</span>
                       <span className="font-bold">₹{parseFloat(invoice.subtotal).toFixed(2)}</span>
@@ -413,39 +413,39 @@ function InvoiceView({ invoiceId, navigate, theme }) {
                     </div>
                     
                     {isInterstate ? (
-                      <div className="flex justify-between text-zinc-600">
+                      <div className="flex justify-between text-zinc-650">
                         <span className="opacity-60">IGST Collected:</span>
-                        <span className="font-bold">₹{parseFloat(invoice.igst).toFixed(2)}</span>
+                        <span className="font-bold text-zinc-900">₹{parseFloat(invoice.igst).toFixed(2)}</span>
                       </div>
                     ) : (
                       <>
-                        <div className="flex justify-between text-zinc-600">
+                        <div className="flex justify-between text-zinc-650">
                           <span className="opacity-60">CGST (Central Tax):</span>
-                          <span className="font-bold">₹{parseFloat(invoice.cgst).toFixed(2)}</span>
+                          <span className="font-bold text-zinc-900">₹{parseFloat(invoice.cgst).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-zinc-600">
+                        <div className="flex justify-between text-zinc-650">
                           <span className="opacity-60">SGST (State Tax):</span>
-                          <span className="font-bold">₹{parseFloat(invoice.sgst).toFixed(2)}</span>
+                          <span className="font-bold text-zinc-900">₹{parseFloat(invoice.sgst).toFixed(2)}</span>
                         </div>
                       </>
                     )}
 
-                    <div className="flex justify-between border-t border-zinc-200 pt-1.5 text-zinc-500">
+                    <div className="flex justify-between border-t border-zinc-200 pt-2 text-zinc-500">
                       <span className="opacity-60">Round Off:</span>
                       <span>₹{parseFloat(invoice.roundOff).toFixed(2)}</span>
                     </div>
 
-                    <div className="flex justify-between border-t border-zinc-900 pt-2.5 text-sm font-black text-zinc-950">
+                    <div className="flex justify-between border-t border-zinc-900 pt-3 text-sm font-black text-zinc-950">
                       <span>Invoice Total:</span>
-                      <span className="text-base text-zinc-950">₹{parseFloat(invoice.grandTotal).toFixed(2)}</span>
+                      <span className="text-lg text-emerald-600">₹{parseFloat(invoice.grandTotal).toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Signatures */}
-                  <div className="pt-8 text-right space-y-1 mt-6">
-                    <p className="text-[10px] opacity-60">For {company.name}</p>
-                    <div className="h-10"></div>
-                    <p className="text-[10px] font-bold border-t border-zinc-300 pt-1 inline-block w-40">Authorized Signatory</p>
+                  <div className="pt-10 text-right space-y-1.5 mt-8">
+                    <p className="text-xs opacity-60">For {company.name}</p>
+                    <div className="h-14"></div>
+                    <p className="text-xs font-bold border-t border-zinc-400 pt-1.5 inline-block w-48 text-center">Authorized Signatory</p>
                   </div>
                 </div>
 
