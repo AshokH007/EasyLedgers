@@ -158,7 +158,9 @@ function Settings({ user, theme }) {
       try {
         const backupData = JSON.parse(evt.target.result);
         await api.post('/settings/restore', { backupData });
-        alert('Database restored successfully! Reloading system.');
+        alert('Database restored successfully! Logging out to apply restored credentials.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.reload();
       } catch (err) {
         console.error(err);

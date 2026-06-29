@@ -6,7 +6,18 @@ const dialect = process.env.DB_DIALECT || 'sqlite';
 
 let sequelize;
 
-if (dialect === 'sqlite') {
+if (process.env.DATABASE_URL) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  });
+} else if (dialect === 'sqlite') {
   const storagePath = process.env.DB_STORAGE || './database.sqlite';
   sequelize = new Sequelize({
     dialect: 'sqlite',

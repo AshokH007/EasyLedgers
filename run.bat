@@ -4,10 +4,10 @@ echo  Starting TALLY Lite - GST Billing Fullstack System...
 echo =========================================================
 echo.
 echo Launching Backend server (Port 5000)...
-start cmd /k "cd backend && npm start"
+start cmd /k "cd backend && npm.cmd start"
 echo.
 echo Launching Frontend dev server (Port 5173)...
-start cmd /k "cd frontend && npm run dev"
+start cmd /k "cd frontend && npm.cmd run dev"
 echo.
 echo =========================================================
 echo  System active! Open http://localhost:5173 in browser.
