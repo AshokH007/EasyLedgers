@@ -134,6 +134,9 @@ function Billing({ navigate, theme }) {
         setBillType('Credit');
         setPaymentMode('Credit');
         submitInvoice('Unpaid');
+      } else if (e.key === 'F10') {
+        e.preventDefault();
+        submitInvoice(null, true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -267,7 +270,7 @@ function Billing({ navigate, theme }) {
 
   const totals = calculateTotals();
 
-  const submitInvoice = async (forcedStatus = null) => {
+  const submitInvoice = async (forcedStatus = null, isSaveAndNext = false) => {
     if (rows.some(r => !r.productId)) {
       alert('Please select a valid product for all rows.');
       return;
@@ -305,8 +308,36 @@ function Billing({ navigate, theme }) {
       const res = await api.post('/invoices', payload);
       // Clear draft
       localStorage.removeItem('invoice_draft');
-      // Redirect to invoice print view
-      navigate('invoice-view', res.data.id);
+      
+      if (isSaveAndNext) {
+        setSuccess(`Invoice #${res.data.invoiceNo} saved successfully! Starting next billing.`);
+        // Reset billing form state
+        setSelectedCustomer(null);
+        setCustomerSearch('');
+        setRows([{ productId: '', name: '', sku: '', hsn: '', qty: 1, rate: 0, discount: 0, gstPercent: 18, total: 0 }]);
+        setProductSearchInput({});
+        setShowProdSuggestions({});
+        setInvoiceDate(() => {
+          const d = new Date();
+          const offset = d.getTimezoneOffset();
+          const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+          return localDate.toISOString().slice(0, 16);
+        });
+        setPaymentMode('Cash');
+        setBillType('Cash');
+
+        // Focus back to customer input
+        setTimeout(() => {
+          if (customerInputRef.current) {
+            customerInputRef.current.focus();
+          }
+        }, 100);
+
+        setTimeout(() => setSuccess(''), 4000);
+      } else {
+        // Redirect to invoice print view
+        navigate('invoice-view', res.data.id);
+      }
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Error occurred while saving invoice.');
@@ -409,6 +440,7 @@ function Billing({ navigate, theme }) {
           <div><kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono border border-zinc-700">F4</kbd> Add Row</div>
           <div><kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono border border-zinc-700">F8</kbd> Cash Invoice</div>
           <div><kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono border border-zinc-700">F9</kbd> Credit Invoice</div>
+          <div><kbd className="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono border border-zinc-700">F10</kbd> Save & Next</div>
         </div>
       </div>
 
@@ -758,24 +790,46 @@ function Billing({ navigate, theme }) {
             </div>
           </div>
 
-          <button
-            onClick={() => submitInvoice()}
-            disabled={loading}
-            className={`w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg cursor-pointer ${
-              billType === 'Credit' 
-                ? 'bg-amber-500 hover:bg-amber-600 text-zinc-950 shadow-amber-500/10' 
-                : 'bg-emerald-500 hover:bg-emerald-600 text-zinc-950 shadow-emerald-500/10'
-            }`}
-          >
-            {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <>
-                <Save className="h-4 w-4" /> 
-                {billType === 'Credit' ? 'Save Outstanding Bill' : 'Print Cash Receipt'}
-              </>
-            )}
-          </button>
+          <div className="space-y-2.5">
+            <button
+              onClick={() => submitInvoice()}
+              disabled={loading}
+              className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition shadow-lg cursor-pointer ${
+                billType === 'Credit' 
+                  ? 'bg-amber-500 hover:bg-amber-600 text-zinc-950 shadow-amber-500/10' 
+                  : 'bg-emerald-500 hover:bg-emerald-600 text-zinc-950 shadow-emerald-500/10'
+              }`}
+            >
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  <Save className="h-4 w-4" /> 
+                  {billType === 'Credit' ? 'Save Outstanding Bill' : 'Print Cash Receipt'}
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => submitInvoice(null, true)}
+              disabled={loading}
+              className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition border shadow-md cursor-pointer ${
+                theme === 'dark'
+                  ? 'bg-zinc-800 hover:bg-zinc-700 text-white border-zinc-700 hover:border-zinc-600'
+                  : 'bg-slate-100 hover:bg-slate-200 text-zinc-850 border-slate-250 hover:border-slate-300'
+              }`}
+            >
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 text-emerald-500" /> 
+                  Save & Next Bill (F10)
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
       </div>

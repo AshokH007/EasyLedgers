@@ -11,7 +11,8 @@ import {
   CheckCircle,
   AlertTriangle,
   Loader2,
-  FileText
+  FileText,
+  Plus
 } from 'lucide-react';
 
 function InvoiceView({ invoiceId, navigate, theme }) {
@@ -208,16 +209,26 @@ function InvoiceView({ invoiceId, navigate, theme }) {
       
       {/* Top Controller Ribbon (Hides in Print) */}
       <div className="flex flex-wrap items-center justify-between gap-4 no-print">
-        <button
-          onClick={() => navigate('billing')}
-          className={`flex items-center gap-1 px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-            theme === 'dark'
-              ? 'border-zinc-800 bg-zinc-900 hover:bg-zinc-850 text-zinc-300'
-              : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-zinc-700'
-          }`}
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to Billing
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('billing')}
+            className={`flex items-center gap-1 px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+              theme === 'dark'
+                ? 'border-zinc-800 bg-zinc-900 hover:bg-zinc-850 text-zinc-300'
+                : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-zinc-700'
+            }`}
+            title="Go back to current billing draft"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to Billing
+          </button>
+          <button
+            onClick={() => navigate('billing')}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-zinc-950 font-bold rounded-xl transition shadow-lg shadow-emerald-500/10 text-xs cursor-pointer"
+            title="Start a new blank billing invoice"
+          >
+            <Plus className="h-4 w-4" /> Next Billing
+          </button>
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {invoice.status !== 'Cancelled' && (
