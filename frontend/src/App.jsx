@@ -3,6 +3,7 @@ import api from './services/api';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Billing from './pages/Billing';
+import SalesHistory from './pages/SalesHistory';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
 import Reports from './pages/Reports';
@@ -270,6 +271,7 @@ function App() {
         <div className="flex-1 p-6 overflow-y-auto">
           {currentPage === 'dashboard' && <Dashboard navigate={navigateTo} theme={theme} />}
           {currentPage === 'billing' && <Billing navigate={navigateTo} theme={theme} />}
+          {currentPage === 'sales-history' && <SalesHistory navigate={navigateTo} theme={theme} user={user} />}
           {currentPage === 'products' && <Products user={user} theme={theme} />}
           {currentPage === 'customers' && <Customers theme={theme} />}
           {currentPage === 'reports' && <Reports user={user} theme={theme} navigate={navigateTo} />}

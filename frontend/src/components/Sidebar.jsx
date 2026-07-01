@@ -8,7 +8,8 @@ import {
   Settings as SettingsIcon, 
   LogOut,
   Menu,
-  X
+  X,
+  Receipt
 } from 'lucide-react';
 
 function Sidebar({ currentPage, navigate, user, logout, theme }) {
@@ -17,6 +18,7 @@ function Sidebar({ currentPage, navigate, user, logout, theme }) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'billing', label: 'Create Bill', icon: FileSpreadsheet },
+    { id: 'sales-history', label: 'Sales History', icon: Receipt },
     { id: 'products', label: 'Products & Stock', icon: Package },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'reports', label: 'Reports & Analytics', icon: BarChart3 },
