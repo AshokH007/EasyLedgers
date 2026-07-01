@@ -295,7 +295,15 @@ function Dashboard({ navigate, theme }) {
                       theme === 'dark' ? 'hover:bg-zinc-900/30' : 'hover:bg-slate-50'
                     }`}
                   >
-                    <td className="py-3 px-4 font-bold text-emerald-500 font-mono">{inv.invoiceNo}</td>
+                    <td className="py-3 px-4 font-bold text-emerald-500 font-mono">
+                      <button 
+                        onClick={() => navigate('invoice-view', inv.id)} 
+                        className="hover:underline hover:text-emerald-400 cursor-pointer font-bold"
+                        title="Click to view & manage invoice details"
+                      >
+                        {inv.invoiceNo}
+                      </button>
+                    </td>
                     <td className="py-3 px-4 text-zinc-400 font-mono">{new Date(inv.date).toLocaleDateString('en-IN')}</td>
                     <td className="py-3 px-4 font-medium">{inv.customer ? inv.customer.name : 'Cash Sale'}</td>
                     <td className="py-3 px-4 text-right font-bold">₹{parseFloat(inv.grandTotal).toFixed(2)}</td>

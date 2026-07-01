@@ -10,10 +10,11 @@ import {
   AlertCircle,
   FileText,
   AlertTriangle,
-  ArrowRight
+  ArrowRight,
+  Trash2
 } from 'lucide-react';
 
-function Reports({ user, theme }) {
+function Reports({ user, theme, navigate }) {
   const [activeTab, setActiveTab] = useState('sales'); // 'sales', 'gst', 'products', 'outstanding', 'profit'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -62,6 +63,20 @@ function Reports({ user, theme }) {
       console.error(err);
       setError('Failed to fetch reporting data. Check database connections.');
     } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteInvoice = async (id, invoiceNo) => {
+    if (!window.confirm(`Are you sure you want to PERMANENTLY delete invoice ${invoiceNo}? This action is destructive and cannot be undone.`)) return;
+    try {
+      setLoading(true);
+      await api.delete(`/invoices/${id}`);
+      alert('Invoice deleted successfully.');
+      fetchReportData();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || 'Failed to delete invoice.');
       setLoading(false);
     }
   };
@@ -275,19 +290,28 @@ function Reports({ user, theme }) {
                       <th className="py-3 px-4 font-bold uppercase text-right">Grand Total</th>
                       <th className="py-3 px-4 font-bold uppercase">Payment</th>
                       <th className="py-3 px-4 font-bold uppercase">Status</th>
+                      {user.role === 'admin' && <th className="py-3 px-4 font-bold uppercase text-center">Actions</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800/30">
                     {salesReport.length === 0 ? (
                       <tr>
-                        <td colSpan="9" className="py-8 text-center opacity-60">No billing invoices found in selected period.</td>
+                        <td colSpan={user.role === 'admin' ? "10" : "9"} className="py-8 text-center opacity-60">No billing invoices found in selected period.</td>
                       </tr>
                     ) : (
                       salesReport.map(inv => {
                         const tax = parseFloat(inv.cgst) + parseFloat(inv.sgst) + parseFloat(inv.igst);
                         return (
                           <tr key={inv.id} className={theme === 'dark' ? 'hover:bg-zinc-900/30' : 'hover:bg-slate-50'}>
-                            <td className="py-3 px-4 font-mono font-bold text-emerald-500">{inv.invoiceNo}</td>
+                            <td className="py-3 px-4 font-mono font-bold text-emerald-500">
+                              <button 
+                                onClick={() => navigate('invoice-view', inv.id)} 
+                                className="hover:underline hover:text-emerald-450 cursor-pointer font-bold"
+                                title="Click to view & manage invoice details"
+                              >
+                                {inv.invoiceNo}
+                              </button>
+                            </td>
                             <td className="py-3 px-4 font-mono text-zinc-400">{new Date(inv.date).toLocaleDateString('en-IN')}</td>
                             <td className="py-3 px-4 font-medium">{inv.customer ? inv.customer.name : 'Cash Customer'}</td>
                             <td className="py-3 px-4 text-right font-mono">₹{parseFloat(inv.subtotal).toFixed(2)}</td>
@@ -304,6 +328,18 @@ function Reports({ user, theme }) {
                                 inv.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : inv.status === 'Cancelled' ? 'bg-zinc-800 text-zinc-500 border border-zinc-700 line-through' : 'bg-red-500/10 text-red-500 border border-red-500/20'
                               }`}>{inv.status}</span>
                             </td>
+                            {user.role === 'admin' && (
+                              <td className="py-3 px-4 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteInvoice(inv.id, inv.invoiceNo)}
+                                  className="p-1 rounded bg-red-550/10 hover:bg-red-550/20 text-red-500 hover:scale-105 active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center border border-red-500/20"
+                                  title="Delete invoice record"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </td>
+                            )}
                           </tr>
                         );
                       })

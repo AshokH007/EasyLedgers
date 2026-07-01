@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   Loader2,
   FileText,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 function InvoiceView({ invoiceId, navigate, theme }) {
@@ -22,6 +23,9 @@ function InvoiceView({ invoiceId, navigate, theme }) {
   const [error, setError] = useState('');
   const [template, setTemplate] = useState('classic'); // 'classic', 'modern', 'thermal', 'distributor', 'minimal'
   const [actionLoading, setActionLoading] = useState(false);
+
+  const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : null;
 
   const fetchInvoiceDetails = async () => {
     try {
@@ -81,6 +85,44 @@ function InvoiceView({ invoiceId, navigate, theme }) {
       fetchInvoiceDetails();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to cancel invoice.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleEdit = () => {
+    if (!invoice) return;
+    const draftData = {
+      customer: invoice.customer,
+      rows: invoice.items.map(item => ({
+        productId: item.productId,
+        name: item.product?.name || '',
+        sku: item.product?.sku || '',
+        hsn: item.product?.hsn || '',
+        qty: parseFloat(item.qty),
+        rate: parseFloat(item.rate),
+        discount: parseFloat(item.discount),
+        gstPercent: parseFloat(item.gstPercent),
+        total: parseFloat(item.total)
+      })),
+      paymentMode: invoice.paymentMode,
+      billType: invoice.billType
+    };
+    localStorage.setItem('invoice_draft', JSON.stringify(draftData));
+    localStorage.setItem('editing_invoice_id', invoice.id);
+    localStorage.setItem('editing_invoice_no', invoice.invoiceNo);
+    navigate('billing');
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to PERMANENTLY delete invoice ${invoice.invoiceNo}? This action is destructive and cannot be undone.`)) return;
+    setActionLoading(true);
+    try {
+      await api.delete(`/invoices/${invoice.id}`);
+      alert('Invoice deleted successfully.');
+      navigate('billing');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete invoice.');
     } finally {
       setActionLoading(false);
     }
@@ -235,9 +277,33 @@ function InvoiceView({ invoiceId, navigate, theme }) {
             <button
               onClick={handleCancel}
               disabled={actionLoading}
-              className="flex items-center gap-1.5 px-3 py-2 border border-red-500/20 hover:border-red-500/30 bg-red-500/5 hover:bg-red-500/10 text-red-400 text-xs font-bold rounded-xl transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 border border-amber-500/20 hover:border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-500 text-xs font-bold rounded-xl transition cursor-pointer"
             >
               <XOctagon className="h-4 w-4" /> Cancel Invoice
+            </button>
+          )}
+          {invoice.status !== 'Cancelled' && (
+            <button
+              onClick={handleEdit}
+              disabled={actionLoading}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                theme === 'dark'
+                  ? 'border-zinc-800 bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-amber-400'
+                  : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-zinc-700 hover:text-amber-600'
+              }`}
+              title="Edit items, customer or other invoice details"
+            >
+              <FileText className="h-4 w-4 text-amber-500" /> Edit Invoice
+            </button>
+          )}
+          {user?.role === 'admin' && (
+            <button
+              onClick={handleDelete}
+              disabled={actionLoading}
+              className="flex items-center gap-1.5 px-3 py-2 border border-red-500/20 hover:border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl transition cursor-pointer"
+              title="Permanently delete invoice record and restore stock"
+            >
+              <Trash2 className="h-4 w-4" /> Delete Invoice
             </button>
           )}
           <button

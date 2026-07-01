@@ -17,6 +17,8 @@ function Billing({ navigate, theme }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [editingInvoiceId, setEditingInvoiceId] = useState(null);
+  const [editingInvoiceNo, setEditingInvoiceNo] = useState('');
 
   // Loaded database items
   const [customers, setCustomers] = useState([]);
@@ -80,6 +82,12 @@ function Billing({ navigate, theme }) {
 
         // Load local auto-save draft if exists
         const draft = localStorage.getItem('invoice_draft');
+        const editingId = localStorage.getItem('editing_invoice_id');
+        const editingNo = localStorage.getItem('editing_invoice_no');
+        if (editingId) {
+          setEditingInvoiceId(editingId);
+          if (editingNo) setEditingInvoiceNo(editingNo);
+        }
         if (draft) {
           try {
             const parsed = JSON.parse(draft);
@@ -305,12 +313,23 @@ function Billing({ navigate, theme }) {
     };
 
     try {
-      const res = await api.post('/invoices', payload);
+      let res;
+      if (editingInvoiceId) {
+        res = await api.put(`/invoices/${editingInvoiceId}`, payload);
+        localStorage.removeItem('editing_invoice_id');
+        localStorage.removeItem('editing_invoice_no');
+        setEditingInvoiceId(null);
+        setEditingInvoiceNo('');
+      } else {
+        res = await api.post('/invoices', payload);
+      }
+
       // Clear draft
       localStorage.removeItem('invoice_draft');
       
       if (isSaveAndNext) {
-        setSuccess(`Invoice #${res.data.invoiceNo} saved successfully! Starting next billing.`);
+        const savedNo = res.data.invoice ? res.data.invoice.invoiceNo : res.data.invoiceNo;
+        setSuccess(`Invoice #${savedNo} saved successfully! Starting next billing.`);
         // Reset billing form state
         setSelectedCustomer(null);
         setCustomerSearch('');
@@ -336,7 +355,8 @@ function Billing({ navigate, theme }) {
         setTimeout(() => setSuccess(''), 4000);
       } else {
         // Redirect to invoice print view
-        navigate('invoice-view', res.data.id);
+        const savedId = res.data.invoice ? res.data.invoice.id : res.data.id;
+        navigate('invoice-view', savedId);
       }
     } catch (err) {
       console.error(err);
@@ -427,6 +447,38 @@ function Billing({ navigate, theme }) {
       {error && (
         <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-sm font-semibold flex items-center gap-2">
           <AlertCircle className="h-4 w-4" /> {error}
+        </div>
+      )}
+
+      {/* Editing Invoice Mode Banner */}
+      {editingInvoiceId && (
+        <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-2xl text-sm font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 no-print">
+          <div className="flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span>You are currently editing invoice <strong>{editingInvoiceNo || 'Draft'}</strong>. Saving will overwrite this record.</span>
+          </div>
+          <button 
+            type="button"
+            onClick={() => {
+              if (window.confirm('Discard editing changes and clear form?')) {
+                localStorage.removeItem('editing_invoice_id');
+                localStorage.removeItem('editing_invoice_no');
+                localStorage.removeItem('invoice_draft');
+                setEditingInvoiceId(null);
+                setEditingInvoiceNo('');
+                setSelectedCustomer(null);
+                setCustomerSearch('');
+                setRows([{ productId: '', name: '', sku: '', hsn: '', qty: 1, rate: 0, discount: 0, gstPercent: 18, total: 0 }]);
+                setProductSearchInput({});
+                setShowProdSuggestions({});
+                setPaymentMode('Cash');
+                setBillType('Cash');
+              }
+            }}
+            className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold rounded-lg text-xs transition cursor-pointer"
+          >
+            Cancel Edit
+          </button>
         </div>
       )}
 

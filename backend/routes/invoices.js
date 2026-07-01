@@ -285,4 +285,105 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// PUT /api/invoices/:id - Update an existing invoice (restores old stock, updates details, deducts new stock)
+router.put('/:id', auth, async (req, res) => {
+  const { 
+    customerId, 
+    date, 
+    items, 
+    subtotal, 
+    discount, 
+    cgst, 
+    sgst, 
+    igst, 
+    roundOff, 
+    grandTotal, 
+    paymentMode, 
+    billType, 
+    status 
+  } = req.body;
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: 'At least one product item is required' });
+  }
+
+  const t = await sequelize.transaction();
+
+  try {
+    const invoice = await Invoice.findByPk(req.params.id, {
+      include: [{ model: InvoiceItem, as: 'items' }],
+      transaction: t,
+    });
+
+    if (!invoice) {
+      await t.rollback();
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    if (invoice.status === 'Cancelled') {
+      await t.rollback();
+      return res.status(400).json({ message: 'Cannot edit a cancelled invoice' });
+    }
+
+    // 1. Revert old stock levels
+    for (const oldItem of invoice.items) {
+      const product = await Product.findByPk(oldItem.productId, { transaction: t, lock: true });
+      if (product) {
+        const restoredStock = parseFloat(product.stockQty) + parseFloat(oldItem.qty);
+        await product.update({ stockQty: restoredStock }, { transaction: t });
+      }
+    }
+
+    // 2. Delete old invoice items
+    await InvoiceItem.destroy({
+      where: { invoiceId: invoice.id },
+      transaction: t,
+    });
+
+    // 3. Create new invoice items and deduct new stock
+    for (const newItem of items) {
+      const { productId, qty, rate, discount: itemDiscount, gstPercent, total } = newItem;
+      
+      await InvoiceItem.create({
+        invoiceId: invoice.id,
+        productId,
+        qty,
+        rate,
+        discount: itemDiscount || 0.00,
+        gstPercent,
+        total,
+      }, { transaction: t });
+
+      const product = await Product.findByPk(productId, { transaction: t, lock: true });
+      if (product) {
+        const newStock = parseFloat(product.stockQty) - parseFloat(qty);
+        await product.update({ stockQty: newStock }, { transaction: t });
+      }
+    }
+
+    // 4. Update the Invoice main record
+    await invoice.update({
+      date: date || invoice.date,
+      customerId,
+      subtotal,
+      discount: discount || 0.00,
+      cgst: cgst || 0.00,
+      sgst: sgst || 0.00,
+      igst: igst || 0.00,
+      roundOff: roundOff || 0.00,
+      grandTotal,
+      paymentMode: paymentMode || invoice.paymentMode,
+      billType: billType || invoice.billType,
+      status: status || invoice.status,
+    }, { transaction: t });
+
+    await t.commit();
+    res.json({ message: 'Invoice updated successfully', invoice });
+  } catch (error) {
+    await t.rollback();
+    console.error('Invoice update error:', error);
+    res.status(500).json({ message: 'Server error during invoice update' });
+  }
+});
+
 module.exports = router;

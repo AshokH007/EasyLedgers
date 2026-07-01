@@ -272,7 +272,7 @@ function App() {
           {currentPage === 'billing' && <Billing navigate={navigateTo} theme={theme} />}
           {currentPage === 'products' && <Products user={user} theme={theme} />}
           {currentPage === 'customers' && <Customers theme={theme} />}
-          {currentPage === 'reports' && <Reports user={user} theme={theme} />}
+          {currentPage === 'reports' && <Reports user={user} theme={theme} navigate={navigateTo} />}
           {currentPage === 'settings' && <Settings user={user} theme={theme} />}
           {currentPage === 'invoice-view' && <InvoiceView invoiceId={selectedInvoiceId} navigate={navigateTo} theme={theme} />}
         </div>
