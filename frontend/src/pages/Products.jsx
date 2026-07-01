@@ -32,6 +32,7 @@ function Products({ user, theme }) {
   const [sellingPrice, setSellingPrice] = useState('0');
   const [stockQty, setStockQty] = useState('0');
   const [unit, setUnit] = useState('Pcs');
+  const [minStockLimit, setMinStockLimit] = useState('10');
 
   // File Upload Reference
   const fileInputRef = useRef(null);
@@ -69,6 +70,7 @@ function Products({ user, theme }) {
     setSellingPrice('0');
     setStockQty('0');
     setUnit('Pcs');
+    setMinStockLimit('10');
     setModalOpen(true);
   };
 
@@ -83,6 +85,7 @@ function Products({ user, theme }) {
     setSellingPrice(String(parseFloat(prod.sellingPrice)));
     setStockQty(String(parseFloat(prod.stockQty)));
     setUnit(prod.unit);
+    setMinStockLimit(String(parseFloat(prod.minStockLimit !== undefined ? prod.minStockLimit : 10)));
     setModalOpen(true);
   };
 
@@ -102,6 +105,7 @@ function Products({ user, theme }) {
       sellingPrice: parseFloat(sellingPrice) || 0,
       stockQty: parseFloat(stockQty) || 0,
       unit,
+      minStockLimit: parseFloat(minStockLimit) || 0,
     };
 
     try {
@@ -142,7 +146,7 @@ function Products({ user, theme }) {
       alert('No products to export.');
       return;
     }
-    const headers = ['Product Name', 'SKU', 'HSN Code', 'GST Percent', 'Purchase Price', 'Selling Price', 'Stock Quantity', 'Unit'];
+    const headers = ['Product Name', 'SKU', 'HSN Code', 'GST Percent', 'Purchase Price', 'Selling Price', 'Stock Quantity', 'Unit', 'Minimum Stock Limit'];
     const rows = products.map(p => [
       `"${p.name.replace(/"/g, '""')}"`,
       `"${(p.sku || '').replace(/"/g, '""')}"`,
@@ -151,7 +155,8 @@ function Products({ user, theme }) {
       p.purchasePrice,
       p.sellingPrice,
       p.stockQty,
-      `"${p.unit}"`
+      `"${p.unit}"`,
+      p.minStockLimit !== undefined ? p.minStockLimit : 10
     ]);
 
     const csvContent = "data:text/csv;charset=utf-8," 
@@ -227,7 +232,8 @@ function Products({ user, theme }) {
             purchasePrice: parseFloat(row['purchase price'] || row['purchase']) || 0,
             sellingPrice: parseFloat(row['selling price'] || row['selling']) || 0,
             stockQty: parseFloat(row['stock quantity'] || row['stock']) || 0,
-            unit: row['unit'] || 'Pcs'
+            unit: row['unit'] || 'Pcs',
+            minStockLimit: parseFloat(row['minimum stock limit'] || row['min stock limit'] || row['min stock limit'] || row['min stock'] || 10) || 10
           });
         }
 
@@ -357,7 +363,7 @@ function Products({ user, theme }) {
                 </tr>
               ) : (
                 products.map((prod) => {
-                  const isLowStock = parseFloat(prod.stockQty) <= 25;
+                  const isLowStock = parseFloat(prod.stockQty) <= parseFloat(prod.minStockLimit !== undefined ? prod.minStockLimit : 10);
                   return (
                     <tr 
                       key={prod.id}
@@ -379,6 +385,7 @@ function Products({ user, theme }) {
                         }`}>
                           {prod.stockQty} {prod.unit}
                         </span>
+                        <div className="text-[9px] text-zinc-500 mt-0.5 font-mono">Limit: {parseFloat(prod.minStockLimit !== undefined ? prod.minStockLimit : 10)}</div>
                       </td>
                       <td className="py-3 px-4 text-center">
                         <div className="inline-flex items-center gap-1.5">
@@ -538,7 +545,7 @@ function Products({ user, theme }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-80">Purchase Cost (₹)</label>
                   <input
@@ -562,6 +569,20 @@ function Products({ user, theme }) {
                     placeholder="e.g. 350"
                     value={sellingPrice}
                     onChange={(e) => setSellingPrice(e.target.value)}
+                    className={`w-full p-2.5 rounded-lg border text-xs outline-none focus:border-emerald-500 ${
+                      theme === 'dark' ? 'bg-zinc-950 border-zinc-850 text-white' : 'bg-slate-50 border-slate-200 text-zinc-950'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-80">Min Alert Limit</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    placeholder="e.g. 10"
+                    value={minStockLimit}
+                    onChange={(e) => setMinStockLimit(e.target.value)}
                     className={`w-full p-2.5 rounded-lg border text-xs outline-none focus:border-emerald-500 ${
                       theme === 'dark' ? 'bg-zinc-950 border-zinc-850 text-white' : 'bg-slate-50 border-slate-200 text-zinc-950'
                     }`}

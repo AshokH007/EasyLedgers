@@ -136,6 +136,11 @@ const Product = sequelize.define('Product', {
     allowNull: false,
     defaultValue: 'Pcs',
   },
+  minStockLimit: {
+    type: DataTypes.DECIMAL(12, 2),
+    allowNull: false,
+    defaultValue: 10.00,
+  },
 }, {
   timestamps: true,
 });

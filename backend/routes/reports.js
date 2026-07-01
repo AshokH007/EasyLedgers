@@ -75,11 +75,9 @@ router.get('/dashboard', auth, async (req, res) => {
       });
     }
 
-    // 4. Low stock alerts (alert if stock is <= 25 units)
+    // 4. Low stock alerts (alert if stock is <= product-specific minStockLimit)
     const lowStockAlerts = await Product.findAll({
-      where: {
-        stockQty: { [Op.lte]: 25 }
-      },
+      where: sequelize.literal('stockQty <= minStockLimit'),
       limit: 5,
       order: [['stockQty', 'ASC']]
     });
@@ -322,6 +320,100 @@ router.get('/outstanding', auth, async (req, res) => {
     res.json(outstandingInvoices);
   } catch (error) {
     console.error('Get outstanding payments report error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /api/reports/hsn - GSTR-1 HSN outward supplies summary report
+router.get('/hsn', auth, async (req, res) => {
+  const { startDate, endDate } = req.query;
+  try {
+    let whereCondition = { status: { [Op.ne]: 'Cancelled' } };
+    if (startDate && endDate) {
+      whereCondition.date = { [Op.between]: [new Date(startDate), new Date(endDate)] };
+    }
+
+    const invoices = await Invoice.findAll({
+      where: whereCondition,
+      include: [
+        {
+          model: InvoiceItem,
+          as: 'items',
+          include: [{ model: Product, as: 'product' }]
+        }
+      ]
+    });
+
+    const hsnMap = {};
+
+    invoices.forEach(inv => {
+      const invoiceIsInterstate = parseFloat(inv.igst) > 0;
+
+      inv.items.forEach(item => {
+        if (!item.product) return;
+        const hsn = item.product.hsn || 'N/A';
+        const unit = item.product.unit || 'Pcs';
+        const key = `${hsn}_${unit}`;
+
+        const qty = parseFloat(item.qty) || 0;
+        const total = parseFloat(item.total) || 0;
+        const rate = parseFloat(item.gstPercent) || 0;
+
+        // Calculate taxable value and tax details
+        const gstMultiplier = rate / 100;
+        const taxable = total / (1 + gstMultiplier);
+        const taxAmount = total - taxable;
+
+        let cgst = 0;
+        let sgst = 0;
+        let igst = 0;
+
+        if (invoiceIsInterstate) {
+          igst = taxAmount;
+        } else {
+          cgst = taxAmount / 2;
+          sgst = taxAmount / 2;
+        }
+
+        if (!hsnMap[key]) {
+          hsnMap[key] = {
+            hsn,
+            description: item.product.name,
+            uqc: unit,
+            totalQty: 0,
+            totalValue: 0,
+            taxableValue: 0,
+            cgst: 0,
+            sgst: 0,
+            igst: 0,
+            totalTax: 0
+          };
+        } else {
+          if (!hsnMap[key].description.includes(item.product.name)) {
+            hsnMap[key].description = `${hsnMap[key].description}, ${item.product.name}`;
+          }
+        }
+
+        hsnMap[key].totalQty += qty;
+        hsnMap[key].totalValue += total;
+        hsnMap[key].taxableValue += taxable;
+        hsnMap[key].cgst += cgst;
+        hsnMap[key].sgst += sgst;
+        hsnMap[key].igst += igst;
+        hsnMap[key].totalTax += taxAmount;
+      });
+    });
+
+    const result = Object.values(hsnMap).map(item => {
+      if (item.description.length > 100) {
+        item.description = item.description.substring(0, 97) + '...';
+      }
+      return item;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Get HSN report error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

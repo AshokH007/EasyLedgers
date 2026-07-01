@@ -42,7 +42,7 @@ router.get('/:id', auth, async (req, res) => {
 
 // POST /api/products - Create a product
 router.post('/', auth, async (req, res) => {
-  const { name, sku, hsn, gstPercent, purchasePrice, sellingPrice, stockQty, unit } = req.body;
+  const { name, sku, hsn, gstPercent, purchasePrice, sellingPrice, stockQty, unit, minStockLimit } = req.body;
   if (!name) {
     return res.status(400).json({ message: 'Product name is required' });
   }
@@ -65,6 +65,7 @@ router.post('/', auth, async (req, res) => {
       sellingPrice: sellingPrice || 0,
       stockQty: stockQty || 0,
       unit: unit || 'Pcs',
+      minStockLimit: minStockLimit !== undefined ? parseFloat(minStockLimit) : 10.00,
     });
     res.status(201).json(newProduct);
   } catch (error) {
@@ -75,7 +76,7 @@ router.post('/', auth, async (req, res) => {
 
 // PUT /api/products/:id - Update product details
 router.put('/:id', auth, async (req, res) => {
-  const { name, sku, hsn, gstPercent, purchasePrice, sellingPrice, stockQty, unit } = req.body;
+  const { name, sku, hsn, gstPercent, purchasePrice, sellingPrice, stockQty, unit, minStockLimit } = req.body;
   try {
     const product = await Product.findByPk(req.params.id);
     if (!product) {
@@ -99,6 +100,7 @@ router.put('/:id', auth, async (req, res) => {
       sellingPrice: sellingPrice !== undefined ? sellingPrice : product.sellingPrice,
       stockQty: stockQty !== undefined ? stockQty : product.stockQty,
       unit: unit !== undefined ? unit : product.unit,
+      minStockLimit: minStockLimit !== undefined ? parseFloat(minStockLimit) : product.minStockLimit,
     });
 
     res.json(product);
@@ -154,6 +156,7 @@ router.post('/import', auth, async (req, res) => {
           sellingPrice: item.sellingPrice !== undefined ? parseFloat(item.sellingPrice) : existingProduct.sellingPrice,
           stockQty: item.stockQty !== undefined ? parseFloat(item.stockQty) : existingProduct.stockQty,
           unit: item.unit || existingProduct.unit,
+          minStockLimit: item.minStockLimit !== undefined ? parseFloat(item.minStockLimit) : existingProduct.minStockLimit,
         });
         updatedCount++;
       } else {
@@ -166,6 +169,7 @@ router.post('/import', auth, async (req, res) => {
           sellingPrice: item.sellingPrice !== undefined ? parseFloat(item.sellingPrice) : 0,
           stockQty: item.stockQty !== undefined ? parseFloat(item.stockQty) : 0,
           unit: item.unit || 'Pcs',
+          minStockLimit: item.minStockLimit !== undefined ? parseFloat(item.minStockLimit) : 10.00,
         });
         createdCount++;
       }

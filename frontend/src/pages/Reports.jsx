@@ -29,6 +29,7 @@ function Reports({ user, theme, navigate }) {
   const [productReport, setProductReport] = useState([]);
   const [outstandingReport, setOutstandingReport] = useState([]);
   const [profitReport, setProfitReport] = useState(null);
+  const [hsnReport, setHsnReport] = useState([]);
 
   const fetchReportData = async () => {
     setLoading(true);
@@ -52,6 +53,9 @@ function Reports({ user, theme, navigate }) {
       } else if (activeTab === 'profit' && user.role === 'admin') {
         const res = await api.get(`/reports/profit${dateParams}`);
         setProfitReport(res.data);
+      } else if (activeTab === 'hsn') {
+        const res = await api.get(`/reports/hsn${dateParams}`);
+        setHsnReport(res.data);
       }
     } catch (err) {
       console.error(err);
@@ -133,6 +137,20 @@ function Reports({ user, theme, navigate }) {
         inv.customer ? inv.customer.mobile : '',
         inv.customer ? inv.customer.email : ''
       ]);
+    } else if (activeTab === 'hsn') {
+      headers = ['HSN Code', 'Description of Goods', 'UQC', 'Total Quantity', 'Total Value (₹)', 'Taxable Value (₹)', 'CGST Amount (₹)', 'SGST Amount (₹)', 'IGST Amount (₹)', 'Total Tax (₹)'];
+      rows = hsnReport.map(item => [
+        item.hsn,
+        `"${item.description.replace(/"/g, '""')}"`,
+        item.uqc,
+        item.totalQty,
+        item.totalValue.toFixed(2),
+        item.taxableValue.toFixed(2),
+        item.cgst.toFixed(2),
+        item.sgst.toFixed(2),
+        item.igst.toFixed(2),
+        item.totalTax.toFixed(2)
+      ]);
     } else {
       alert('Export not supported for this tab.');
       return;
@@ -154,6 +172,7 @@ function Reports({ user, theme, navigate }) {
     { id: 'sales', label: 'Sales Report', icon: TrendingUp, role: ['admin', 'staff'] },
     { id: 'gst', label: 'GST Tax liability', icon: BarChart3, role: ['admin', 'staff'] },
     { id: 'products', label: 'Product Sales', icon: BarChart3, role: ['admin', 'staff'] },
+    { id: 'hsn', label: 'HSN Summary (GSTR-1)', icon: FileText, role: ['admin', 'staff'] },
     { id: 'outstanding', label: 'Outstanding Payments', icon: AlertTriangle, role: ['admin', 'staff'] },
     { id: 'profit', label: 'Profits Report', icon: IndianRupee, role: ['admin'] },
   ];
@@ -471,6 +490,48 @@ function Reports({ user, theme, navigate }) {
                           <td className="py-3 px-4 text-right font-mono font-black text-amber-500">₹{parseFloat(inv.grandTotal).toFixed(2)}</td>
                           <td className="py-3 px-4 font-mono">{inv.customer?.mobile || '—'}</td>
                           <td className="py-3 px-4">{inv.customer?.email || '—'}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* 6. HSN OUTWARD SUMMARY REPORT VIEW */}
+            {activeTab === 'hsn' && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className={`border-b ${theme === 'dark' ? 'border-zinc-800 text-zinc-400' : 'border-slate-100 text-zinc-500'}`}>
+                      <th className="py-3 px-4 font-bold uppercase">HSN Code</th>
+                      <th className="py-3 px-4 font-bold uppercase">Description of Goods</th>
+                      <th className="py-3 px-4 font-bold uppercase text-center">UQC (Unit)</th>
+                      <th className="py-3 px-4 font-bold uppercase text-right">Total Quantity</th>
+                      <th className="py-3 px-4 font-bold uppercase text-right">Taxable Value (₹)</th>
+                      <th className="py-3 px-4 font-bold uppercase text-right">CGST (₹)</th>
+                      <th className="py-3 px-4 font-bold uppercase text-right">SGST (₹)</th>
+                      <th className="py-3 px-4 font-bold uppercase text-right">IGST (₹)</th>
+                      <th className="py-3 px-4 font-bold uppercase text-right font-black">Total Value (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/30">
+                    {hsnReport.length === 0 ? (
+                      <tr>
+                        <td colSpan="9" className="py-8 text-center opacity-60">No outward supplies matching HSN categories in this period.</td>
+                      </tr>
+                    ) : (
+                      hsnReport.map((item, idx) => (
+                        <tr key={idx} className={theme === 'dark' ? 'hover:bg-zinc-900/30' : 'hover:bg-slate-50'}>
+                          <td className="py-3 px-4 font-mono font-bold text-emerald-500">{item.hsn}</td>
+                          <td className="py-3 px-4 font-bold text-zinc-200">{item.description}</td>
+                          <td className="py-3 px-4 text-center font-semibold text-zinc-400">{item.uqc}</td>
+                          <td className="py-3 px-4 text-right font-mono font-bold text-zinc-350">{item.totalQty}</td>
+                          <td className="py-3 px-4 text-right font-mono text-zinc-400">₹{item.taxableValue.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-right font-mono text-zinc-500">₹{item.cgst.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-right font-mono text-zinc-500">₹{item.sgst.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-right font-mono text-blue-500">₹{item.igst.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-right font-mono font-black text-emerald-500">₹{item.totalValue.toFixed(2)}</td>
                         </tr>
                       ))
                     )}

@@ -49,6 +49,23 @@ async function startServer() {
     await sequelize.sync();
     console.log('Database models synced.');
 
+    // Safe auto-migration: Add minStockLimit to Products if it doesn't exist
+    try {
+      const tableInfo = await sequelize.getQueryInterface().describeTable('Products');
+      if (!tableInfo.minStockLimit) {
+        console.log('Adding minStockLimit column to Products table...');
+        const { DataTypes } = require('sequelize');
+        await sequelize.getQueryInterface().addColumn('Products', 'minStockLimit', {
+          type: DataTypes.DECIMAL(12, 2),
+          allowNull: false,
+          defaultValue: 10.00
+        });
+        console.log('minStockLimit column added successfully.');
+      }
+    } catch (migError) {
+      console.error('Error verifying or running Product table migration:', migError);
+    }
+
     // Auto-create default admin and company if empty (bootstrap seeding)
     const userCount = await User.count();
     if (userCount === 0) {
