@@ -23,14 +23,8 @@ function SalesHistory({ navigate, theme, user }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All'); // 'All', 'Paid', 'Unpaid', 'Cancelled'
   const [paymentModeFilter, setPaymentModeFilter] = useState('All'); // 'All', 'Cash', 'UPI', 'Card', 'Credit', 'Bank Transfer'
-  const [startDate, setStartDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30); // Default to last 30 days
-    return d.toISOString().slice(0, 10);
-  });
-  const [endDate, setEndDate] = useState(() => {
-    return new Date().toISOString().slice(0, 10);
-  });
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const fetchInvoices = async () => {
     try {
@@ -365,7 +359,7 @@ function SalesHistory({ navigate, theme, user }) {
       </div>
 
       {/* Main Table List */}
-      <div className={`rounded-2xl border overflow-hidden ${
+      <div className={`rounded-2xl border overflow-hidden max-h-[550px] overflow-y-auto ${
         theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800/80' : 'bg-white border-slate-200 shadow-sm'
       }`}>
         {loading ? (

@@ -20,14 +20,8 @@ function Reports({ user, theme, navigate }) {
   const [error, setError] = useState('');
   
   // Date Filters
-  const [startDate, setStartDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30); // Last 30 days
-    return d.toISOString().slice(0, 10);
-  });
-  const [endDate, setEndDate] = useState(() => {
-    return new Date().toISOString().slice(0, 10);
-  });
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Data States
   const [salesReport, setSalesReport] = useState([]);
@@ -261,7 +255,7 @@ function Reports({ user, theme, navigate }) {
       )}
 
       {/* Reports Display Container */}
-      <div className={`rounded-2xl border overflow-hidden ${
+      <div className={`rounded-2xl border overflow-hidden max-h-[550px] overflow-y-auto ${
         theme === 'dark' ? 'bg-zinc-900/40 border-zinc-800/80' : 'bg-white border-slate-200'
       }`}>
         {loading ? (

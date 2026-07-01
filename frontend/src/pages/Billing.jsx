@@ -19,6 +19,7 @@ function Billing({ navigate, theme }) {
   const [success, setSuccess] = useState('');
   const [editingInvoiceId, setEditingInvoiceId] = useState(null);
   const [editingInvoiceNo, setEditingInvoiceNo] = useState('');
+  const isLoadedRef = useRef(false);
 
   // Loaded database items
   const [customers, setCustomers] = useState([]);
@@ -35,10 +36,10 @@ function Billing({ navigate, theme }) {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [invoiceDate, setInvoiceDate] = useState(() => {
     const d = new Date();
-    // Local date-time string matching YYYY-MM-DDTHH:MM
+    // Local date string matching YYYY-MM-DD
     const offset = d.getTimezoneOffset();
     const localDate = new Date(d.getTime() - (offset * 60 * 1000));
-    return localDate.toISOString().slice(0, 16);
+    return localDate.toISOString().slice(0, 10);
   });
   
   const [rows, setRows] = useState([
@@ -100,10 +101,14 @@ function Billing({ navigate, theme }) {
             }
             if (parsed.paymentMode) setPaymentMode(parsed.paymentMode);
             if (parsed.billType) setBillType(parsed.billType);
+            if (parsed.date) {
+              setInvoiceDate(parsed.date.slice(0, 10));
+            }
           } catch (e) {
             console.error('Draft load failed:', e);
           }
         }
+        isLoadedRef.current = true;
       } catch (err) {
         console.error(err);
         setError('Failed to fetch master lookup lists (customers/products).');
@@ -114,14 +119,16 @@ function Billing({ navigate, theme }) {
 
   // Auto-Save Draft to LocalStorage when form changes
   useEffect(() => {
+    if (!isLoadedRef.current) return;
     const draftData = {
       customer: selectedCustomer,
       rows,
       paymentMode,
-      billType
+      billType,
+      date: invoiceDate
     };
     localStorage.setItem('invoice_draft', JSON.stringify(draftData));
-  }, [selectedCustomer, rows, paymentMode, billType]);
+  }, [selectedCustomer, rows, paymentMode, billType, invoiceDate]);
 
   // Keyboard Shortcuts (Tally-like)
   useEffect(() => {
@@ -574,12 +581,12 @@ function Billing({ navigate, theme }) {
 
             {/* Date Picker */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">Invoice Date & Time</label>
+              <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">Invoice Date</label>
               <input
-                type="datetime-local"
+                type="date"
                 value={invoiceDate}
                 onChange={(e) => setInvoiceDate(e.target.value)}
-                className={`w-full p-2 rounded-lg border text-xs outline-none focus:border-emerald-500 ${
+                className={`w-full p-2 rounded-lg border text-xs outline-none focus:border-emerald-500 cursor-pointer ${
                   theme === 'dark' ? 'bg-zinc-950 border-zinc-800 text-white' : 'bg-slate-50 border-slate-200 text-zinc-950'
                 }`}
               />

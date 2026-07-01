@@ -2,11 +2,16 @@
   "name": "gst-biller",
   "version": "1.0.0",
   "private": true,
+  "main": "desktop.js",
   "scripts": {
     "install-backend": "npm install --prefix backend",
     "install-frontend": "npm install --prefix frontend",
     "build-frontend": "npm run build --prefix frontend",
     "build": "npm run install-backend && npm run install-frontend && npm run build-frontend",
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "desktop": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^31.0.0"
   }
 }
