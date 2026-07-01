@@ -21,12 +21,12 @@ It replicates the ultra-fast workflows of Tally but features a modern Light/Dark
 Upon first startup, the database is automatically created and populated with demo accounts:
 
 * **Admin User:**
-  * **Email/Username:** `admin` or `admin@gstbiller.com`
-  * **Password:** `admin123`
+  * **Email/Username:** 
+  * **Password:** 
   * *Access:* Complete administration, catalog CRUD, margins/profit reports, backup exports, and team user management.
 * **Staff User:**
-  * **Email/Username:** `staff` or `staff@gstbiller.com`
-  * **Password:** `staff123`
+  * **Email/Username:** 
+  * **Password:** 
   * *Access:* Product/customer lookups, create bills, basic sales list reviews (restricted from settings, profit reports, backups, and user management).
 
 ---
